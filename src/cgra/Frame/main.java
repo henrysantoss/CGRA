@@ -1,15 +1,30 @@
 package cgra.Frame;
 
 import javax.swing.*;
+import java.util.*;
+
+import cgra.Components.MathProcessor;
+import cgra.Components.Plane;
+
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import javax.imageio.ImageIO;
+import javax.swing.table.*;
 
 public class main extends javax.swing.JFrame {
     private JLabel lblCoordinates;
+    private static ArrayList<Plane> lineDataGrid;
     
     public main() {
         initComponents();
+
+        lineDataGrid = new ArrayList<>();
 
         pnlRadar.setBackground(Color.WHITE);
         pnlRadar.setPreferredSize(new Dimension(400, 400));
@@ -54,6 +69,7 @@ public class main extends javax.swing.JFrame {
         lblEDX5 = new javax.swing.JLabel();
         edtEDDirecao = new javax.swing.JTextField();
         btnEDInserir = new javax.swing.JButton();
+        chkOpc = new javax.swing.JCheckBox();
         pnlFuncTrans = new javax.swing.JPanel();
         lblEntradaDados1 = new javax.swing.JLabel();
         pnlTransladar = new javax.swing.JPanel();
@@ -80,11 +96,11 @@ public class main extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         lblEntradaDados3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        grdData = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         lblEntradaDados4 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        memRelatorio = new javax.swing.JTextArea();
         lblEntradaDados2 = new javax.swing.JLabel();
         pnlFuncTrans1 = new javax.swing.JPanel();
         lblEntradaDados5 = new javax.swing.JLabel();
@@ -132,6 +148,7 @@ public class main extends javax.swing.JFrame {
         lblEDX1.setText("Raio:");
 
         edtEDRaio.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        edtEDRaio.setEnabled(false);
 
         lblEDX2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblEDX2.setText("Velocidade:");
@@ -147,6 +164,7 @@ public class main extends javax.swing.JFrame {
         lblEDX4.setText("Ângulo:");
 
         edtEDAngulo.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        edtEDAngulo.setEnabled(false);
 
         lblEDX5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblEDX5.setText("Direção:");
@@ -155,6 +173,21 @@ public class main extends javax.swing.JFrame {
 
         btnEDInserir.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnEDInserir.setText("Inserir");
+        btnEDInserir.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnEDInserirMouseClicked(evt);
+            }
+        });
+
+        chkOpc.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        chkOpc.setText("Cartesiano");
+        chkOpc.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        chkOpc.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
+        chkOpc.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chkOpcItemStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlEntradaDadosLayout = new javax.swing.GroupLayout(pnlEntradaDados);
         pnlEntradaDados.setLayout(pnlEntradaDadosLayout);
@@ -162,13 +195,13 @@ public class main extends javax.swing.JFrame {
             pnlEntradaDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlEntradaDadosLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pnlEntradaDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lblEDX1)
-                    .addComponent(lblEDX2)
-                    .addComponent(lblEDX, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pnlEntradaDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(pnlEntradaDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlEntradaDadosLayout.createSequentialGroup()
+                        .addGroup(pnlEntradaDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblEDX1)
+                            .addComponent(lblEDX2)
+                            .addComponent(lblEDX, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pnlEntradaDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(pnlEntradaDadosLayout.createSequentialGroup()
                                 .addComponent(edtEDRaio, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -183,7 +216,11 @@ public class main extends javax.swing.JFrame {
                             .addComponent(edtEDAngulo, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
                             .addComponent(edtEDY)))
                     .addGroup(pnlEntradaDadosLayout.createSequentialGroup()
-                        .addComponent(edtEDVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(pnlEntradaDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(pnlEntradaDadosLayout.createSequentialGroup()
+                                .addGap(85, 85, 85)
+                                .addComponent(edtEDVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(chkOpc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lblEDX5, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -219,7 +256,9 @@ public class main extends javax.swing.JFrame {
                     .addComponent(lblEDX5)
                     .addComponent(edtEDDirecao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnEDInserir)
+                .addGroup(pnlEntradaDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnEDInserir)
+                    .addComponent(chkOpc))
                 .addGap(0, 22, Short.MAX_VALUE))
         );
 
@@ -425,12 +464,9 @@ public class main extends javax.swing.JFrame {
         lblEntradaDados3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblEntradaDados3.setText("Data Grid");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        grdData.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+
             },
             new String [] {
                 "ID", "X", "Y", "R", "A", "V", "D"
@@ -444,18 +480,17 @@ public class main extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jTable1.setRowSelectionAllowed(false);
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(grdData);
 
         lblEntradaDados4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblEntradaDados4.setText("Relatório");
         lblEntradaDados4.setToolTipText("");
 
-        jTextArea1.setEditable(false);
-        jTextArea1.setColumns(20);
-        jTextArea1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        memRelatorio.setEditable(false);
+        memRelatorio.setColumns(20);
+        memRelatorio.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        memRelatorio.setRows(5);
+        jScrollPane2.setViewportView(memRelatorio);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -704,15 +739,85 @@ public class main extends javax.swing.JFrame {
         pack();
     }//GEN-END:initComponents
 
+    private void btnEDInserirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEDInserirMouseClicked
+        try {
+            double liX = parseDoubleOrDefault(edtEDX.getText(), 0.0);
+            double liY = parseDoubleOrDefault(edtEDY.getText(), 0.0);
+            double liRadius = parseDoubleOrDefault(edtEDRaio.getText(), 0.0);
+            double liAngle = parseDoubleOrDefault(edtEDAngulo.getText(), 0.0);
+            double liSpeed = parseDoubleOrDefault(edtEDVelocidade.getText(), 0.0);
+            double liDirection = parseDoubleOrDefault(edtEDDirecao.getText(), 0.0);
+            
+            if (liSpeed <= 0) {
+                throw new Exception("É necessário que a velocidade seja um valor acima de 0.");
+            }
+
+            Plane newPlane = new Plane();
+            newPlane.setSpeed(liSpeed);
+            newPlane.setDirection(liDirection);
+
+            if (!chkOpc.isSelected()) {
+                newPlane.setX(liX);
+                newPlane.setY(liY);
+                newPlane = MathProcessor.convertCartesianToPolar(newPlane);
+            } else {
+                newPlane.setRadius(liRadius);
+                newPlane.setAngle(liAngle);
+                newPlane = MathProcessor.convertPolarToCartesian(newPlane);
+            }
+
+            newPlane.setCode(generateCode());
+            lineDataGrid.add(newPlane);
+
+            DefaultTableModel model = (DefaultTableModel) grdData.getModel();
+            model.addRow(new Object[] {
+                newPlane.getCode(), 
+                newPlane.getX(), 
+                newPlane.getY(), 
+                newPlane.getRadius(), 
+                newPlane.getAngle(),
+                newPlane.getSpeed(),
+                newPlane.getDirection()
+            });
+
+            updateRadar();
+            resetEntradaDados();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+    }//GEN-LAST:event_btnEDInserirMouseClicked
+
+    private void chkOpcItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chkOpcItemStateChanged
+        if (chkOpc.isSelected()) {
+            chkOpc.setText("Polar");
+        } else {
+            chkOpc.setText("Cartesiano");
+        }
+        
+        edtEDX.setEnabled(!chkOpc.isSelected());
+        edtEDY.setEnabled(!chkOpc.isSelected());
+        edtEDRaio.setEnabled(chkOpc.isSelected());
+        edtEDAngulo.setEnabled(chkOpc.isSelected());
+    }//GEN-LAST:event_chkOpcItemStateChanged
+
     public final void atualizarRadar() {
         pnlRadar.removeAll();
-        gerarLayoutRadar();
+        generateLayoutRadar();
         pnlRadar.add(lblCoordinates);
         pnlRadar.revalidate();
         pnlRadar.repaint();
     }
 
-    private void gerarLayoutRadar() {
+    public void resetEntradaDados() {
+        edtEDX.setText("");
+        edtEDY.setText("");
+        edtEDRaio.setText("");
+        edtEDAngulo.setText("");
+        edtEDVelocidade.setText("");
+        edtEDDirecao.setText("");
+    }
+
+    private void generateLayoutRadar() {
         for (int i = 1; i <= 7; i++) {
             JSeparator sep = new JSeparator();
             sep.setBounds(0, i * 50, pnlRadar.getWidth(), 5);
@@ -731,7 +836,89 @@ public class main extends javax.swing.JFrame {
         point.setBounds(195, 195, 12, 12);
         pnlRadar.add(point);
     }
+    
+    public double parseDoubleOrDefault(String value, double defaultValue) {
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    } 
 
+    private int generateCode() {
+        if (lineDataGrid == null || lineDataGrid.isEmpty()) {
+            return 1;
+        }
+        return lineDataGrid.stream().mapToInt(Plane::getCode).max().orElse(0) + 1;
+    }
+
+    public final void updateRadar() {
+
+		this.pnlRadar.removeAll();
+
+		for (int i = 0; i < grdData.getRowCount(); i++) {
+			try {
+				JLabel label = getImage(lineDataGrid.get(i));
+				pnlRadar.add(label);
+			} catch (IOException ex) {
+				JOptionPane.showMessageDialog(null, ex.getMessage());
+			}
+		}
+
+		generateLayoutRadar();
+		pnlRadar.add(lblCoordinates);
+        pnlRadar.revalidate();
+        pnlRadar.repaint();
+	}  
+
+    private JLabel getImage(Plane plane) throws IOException {
+        URL url = getClass().getResource("../images/plane.png");
+        BufferedImage img = ImageIO.read(url);
+        img = rotateImage(img, -1 * (plane.getDirection() - 45.0));
+    
+        Icon icon = new ImageIcon(img);
+        JLabel label = new JLabel(icon);
+    
+        int x = 200 + (int) plane.getX();
+        int y = 200 - (int) plane.getY();
+    
+        label.setBounds(x - 15, y - 15, 30, 30);
+        return label;
+    }
+
+    public static BufferedImage rotateImage(BufferedImage image, double angle) {
+        angle = angle % 360;
+        if (angle < 0) {
+            angle += 360;
+        }
+    
+        AffineTransform tx = new AffineTransform();
+        tx.rotate(Math.toRadians(angle), image.getWidth() / 2.0, image.getHeight() / 2.0);
+    
+        double xtrans = 0, ytrans = 0;
+        if (angle <= 90) {
+            xtrans = tx.transform(new Point2D.Double(0, image.getHeight()), null).getX();
+            ytrans = tx.transform(new Point2D.Double(0.0, 0.0), null).getY();
+        } else if (angle <= 180) {
+            xtrans = tx.transform(new Point2D.Double(image.getWidth(), image.getHeight()), null).getX();
+            ytrans = tx.transform(new Point2D.Double(0, image.getHeight()), null).getY();
+        } else if (angle <= 270) {
+            xtrans = tx.transform(new Point2D.Double(image.getWidth(), 0), null).getX();
+            ytrans = tx.transform(new Point2D.Double(image.getWidth(), image.getHeight()), null).getY();
+        } else {
+            xtrans = tx.transform(new Point2D.Double(0, 0), null).getX();
+            ytrans = tx.transform(new Point2D.Double(image.getWidth(), 0), null).getY();
+        }
+    
+        AffineTransform translationTransform = new AffineTransform();
+        translationTransform.translate(-xtrans, -ytrans);
+        tx.preConcatenate(translationTransform);
+    
+        return new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR).filter(image, null);
+    }
     
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -750,6 +937,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JButton btnFSEsc;
     private javax.swing.JButton btnFSRot;
     private javax.swing.JButton btnFSTrans;
+    private javax.swing.JCheckBox chkOpc;
     private javax.swing.JTextField edtEDAngulo;
     private javax.swing.JTextField edtEDDirecao;
     private javax.swing.JTextField edtEDRaio;
@@ -766,13 +954,12 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JTextField edtFSY;
     private javax.swing.JTextField edtFSY2;
     private javax.swing.JTextField edtFSY3;
+    private javax.swing.JTable grdData;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel lblEDX;
     private javax.swing.JLabel lblEDX1;
     private javax.swing.JLabel lblEDX10;
@@ -796,6 +983,7 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JLabel lblEntradaDados3;
     private javax.swing.JLabel lblEntradaDados4;
     private javax.swing.JLabel lblEntradaDados5;
+    private javax.swing.JTextArea memRelatorio;
     private javax.swing.JPanel pnlEntradaDados;
     private javax.swing.JPanel pnlFuncTrans;
     private javax.swing.JPanel pnlFuncTrans1;
