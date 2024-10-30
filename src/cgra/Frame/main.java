@@ -480,6 +480,11 @@ public class main extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
+        grdData.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                grdDataMousePressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(grdData);
 
         lblEntradaDados4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
@@ -799,6 +804,27 @@ public class main extends javax.swing.JFrame {
         edtEDRaio.setEnabled(chkOpc.isSelected());
         edtEDAngulo.setEnabled(chkOpc.isSelected());
     }//GEN-LAST:event_chkOpcItemStateChanged
+
+    private void grdDataMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_grdDataMousePressed
+        if (SwingUtilities.isRightMouseButton(evt)) {
+            int row = grdData.rowAtPoint(evt.getPoint());
+            
+            if (row >= 0) {
+                // Selecionar a linha clicada
+                grdData.setRowSelectionInterval(row, row);
+    
+                int confirm = JOptionPane.showConfirmDialog(this, "Você deseja excluir este avião?", "Confirmação", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    // Remover a linha do modelo de dados
+                    lineDataGrid.remove(row);
+                    DefaultTableModel model = (DefaultTableModel) grdData.getModel();
+                    model.removeRow(row);
+                    
+                    updateRadar();
+                }
+            }
+        }
+    }//GEN-LAST:event_grdDataMousePressed
 
     public final void atualizarRadar() {
         pnlRadar.removeAll();
