@@ -7,7 +7,7 @@ public class MathProcessor {
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.##");
 
-    private static double formatDecimal(double value) {
+    public static double formatDecimal(double value) {
         return Double.parseDouble(DECIMAL_FORMAT.format(value).replace(',', '.'));
     }
 
