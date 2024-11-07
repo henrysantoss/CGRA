@@ -2,6 +2,8 @@ package cgra.Frame;
 
 import cgra.Components.NonEditableTableModel;
 import cgra.Components.Plane;
+import cgra.Math.MathProcessor;
+import cgra.Math.TrackingUtils;
 import cgra.Math.TransformationUtils;
 import java.awt.*;
 import java.awt.event.ItemEvent;
@@ -682,6 +684,10 @@ public class Main extends JFrame {
         btnFRColisao.setText("Em Rota de Colisão");
         btnFRColisao.setActionCommand("");
 
+        btnFRProxAE.addActionListener(e -> checkPlanesNearAirport());
+        btnFRProx.addActionListener(e -> checkPlanesNearEachOther());
+        btnFRColisao.addActionListener(e -> checkPlanesOnCollisionCourse());
+
         GroupLayout pnlTransladar4Layout = new GroupLayout(pnlTransladar4);
         pnlTransladar4.setLayout(pnlTransladar4Layout);
         pnlTransladar4Layout.setHorizontalGroup(
@@ -854,12 +860,10 @@ public class Main extends JFrame {
             int row = grdData.rowAtPoint(evt.getPoint());
 
             if (row >= 0) {
-                // Selecionar a linha clicada
                 grdData.setRowSelectionInterval(row, row);
 
                 int confirm = JOptionPane.showConfirmDialog(this, "Você deseja excluir este avião?", "Confirmação", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
-                    // Remover a linha do modelo de dados
                     lineDataGrid.remove(row);
                     DefaultTableModel model = (DefaultTableModel) grdData.getModel();
                     model.removeRow(row);
@@ -994,6 +998,22 @@ public class Main extends JFrame {
 
     public static void main(String args[]) {
         EventQueue.invokeLater(() -> new Main().setVisible(true));
+    }
+
+    private void checkPlanesNearAirport() {
+        double minDistance = parseDoubleOrDefault(edtFRDM1.getText(), 0.0);
+        String report = TrackingUtils.checkPlanesNearAirport(lineDataGrid, minDistance);
+        memRelatorio.setText(report);
+    }
+
+    private void checkPlanesNearEachOther() {
+        double minDistance = parseDoubleOrDefault(edtFRDM2.getText(), 0.0);
+        String report = TrackingUtils.checkPlanesNearEachOther(lineDataGrid, minDistance);
+        memRelatorio.setText(report);
+    }
+
+    private void checkPlanesOnCollisionCourse() {
+        // TODO: Implementar a verificação de colisão
     }
 
 
