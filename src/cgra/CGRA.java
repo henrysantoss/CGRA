@@ -3,7 +3,7 @@ package cgra;
 import javax.swing.*;
 import java.awt.*;
 
-import cgra.Frame.main;
+import cgra.Frame.Main;
 
 public class CGRA {
 
@@ -36,7 +36,7 @@ public class CGRA {
                 e.printStackTrace();
             }
 
-            main tela = new main();
+            Main tela = new Main();
             tela.setLocationRelativeTo(null);
             tela.setVisible(true);
         });
