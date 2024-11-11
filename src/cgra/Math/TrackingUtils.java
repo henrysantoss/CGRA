@@ -63,7 +63,7 @@ public class TrackingUtils {
                 if (collisionTime <= minTime) {
                     activeReport = true;
                     report.append(
-                            "Rota de Colisão detectada: O Avião " + plane1.getCode() + " está em Rota de Colisão com o Avião "
+                            "O Avião " + plane1.getCode() + " está em Rota de Colisão com o Avião "
                                     + plane2.getCode() + " em aproximadamente " + String.format("%.2f", collisionTime) + " segundos!\n");
 
                 }
