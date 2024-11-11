@@ -2,7 +2,6 @@ package cgra.Frame;
 
 import cgra.Components.NonEditableTableModel;
 import cgra.Components.Plane;
-import cgra.Math.MathProcessor;
 import cgra.Math.TrackingUtils;
 import cgra.Math.TransformationUtils;
 import java.awt.*;
@@ -24,13 +23,11 @@ import javax.swing.table.DefaultTableModel;
 public class Main extends JFrame {
     private final JLabel lblCoordinates;
     private static ArrayList<Plane> lineDataGrid;
-    private Plane selectedPlane;
 
     public Main() {
         initComponents();
 
         lineDataGrid = new ArrayList<>();
-        selectedPlane = null;
 
         pnlRadar.setBackground(Color.WHITE);
         pnlRadar.setPreferredSize(new Dimension(400, 400));
@@ -1013,7 +1010,9 @@ public class Main extends JFrame {
     }
 
     private void checkPlanesOnCollisionCourse() {
-        // TODO: Implementar a verificação de colisão
+        double minTime = parseDoubleOrDefault(edtFRTM.getText(), 0.0);
+        String report = TrackingUtils.checkPossibleCollisions(lineDataGrid, minTime);
+        memRelatorio.setText(report);
     }
 
 

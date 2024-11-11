@@ -17,7 +17,8 @@ public class TrackingUtils {
         for (Plane plane : planes) {
             double distance = MathProcessor.calculateDistance(plane.getX(), plane.getY(), AIRPORT_X, AIRPORT_Y);
             if (distance <= minDistance) {
-                report.append("Avião ").append(plane.getCode()).append(" está a ").append(formatDecimal(distance)).append(" metros do aeroporto.\n");
+                report.append("Avião ").append(plane.getCode()).append(" está a ").append(formatDecimal(distance))
+                        .append(" metros do aeroporto.\n");
             }
         }
 
@@ -31,13 +32,45 @@ public class TrackingUtils {
             Plane plane1 = planes.get(i);
             for (int j = i + 1; j < planes.size(); j++) {
                 Plane plane2 = planes.get(j);
-                double distance = MathProcessor.calculateDistance(plane1.getX(), plane1.getY(), plane2.getX(), plane2.getY());
+                double distance = MathProcessor.calculateDistance(plane1.getX(), plane1.getY(), plane2.getX(),
+                        plane2.getY());
                 if (distance <= minDistance) {
-                    report.append("Avião ").append(plane1.getCode()).append(" e Avião ").append(plane2.getCode()).append(" estão a ").append(formatDecimal(distance)).append(" metros de distância.\n");
+                    report.append("Avião ").append(plane1.getCode()).append(" e Avião ").append(plane2.getCode())
+                            .append(" estão a ").append(formatDecimal(distance)).append(" metros de distância.\n");
                 }
             }
         }
 
         return report.toString();
     }
+
+    public static String checkPossibleCollisions(List<Plane> planes, double minTime) {
+        StringBuilder report = new StringBuilder("Aviões com possibilidade de colisão:\n");
+        boolean activeReport = false;
+
+        for (int i = 0; i < planes.size(); i++) {
+            Plane plane1 = planes.get(i);
+
+            for (int j = i + 1; j < planes.size(); j++) {
+                Plane plane2 = planes.get(j);
+
+                double collisionTime = MathProcessor.calculatePossibleCollision(plane1, plane2);
+
+                if (collisionTime == -1) {
+                    continue;
+                }
+
+                if (collisionTime <= minTime) {
+                    activeReport = true;
+                    report.append(
+                            "Rota de Colisão detectada: O Avião " + plane1.getCode() + " está em Rota de Colisão com o Avião "
+                                    + plane2.getCode() + " em aproximadamente " + String.format("%.2f", collisionTime) + " segundos!\n");
+
+                }
+            }
+        }
+
+        return (activeReport) ? report.toString() : "Não há aviões com possibilidade de colisão!";
+    }
+
 }
